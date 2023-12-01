@@ -19,11 +19,14 @@ fun main() {
         return sum
     }
 
-    val testInput = readInput("Day01_test")
-    check(part2(testInput) == 281)
+    val testInput1 = readInput("Day01_test1")
+    check(part1(testInput1) == 142)
+    val testInput2 = readInput("Day01_test2")
+    check(part2(testInput2) == 281)
 
     val input = readInput("Day01")
-    part2(input).println()
+    part1(input).printlnPrefix("Part1 answer")
+    part2(input).printlnPrefix("Part2 answer")
 }
 
 private val scanMap = mapOf(

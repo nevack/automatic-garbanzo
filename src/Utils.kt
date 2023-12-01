@@ -19,3 +19,8 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
  * The cleaner shorthand for printing output.
  */
 fun Any?.println() = println(this)
+
+/**
+ * The cleaner shorthand for printing output with prefix.
+ */
+fun Any?.printlnPrefix(prefix: String) = println("$prefix: $this")

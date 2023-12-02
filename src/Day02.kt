@@ -1,3 +1,5 @@
+import kotlin.math.max
+
 fun main() {
     fun parseSet(input: String): Bag {
         val bags = input.split(", ")
@@ -41,18 +43,36 @@ fun main() {
         return sum
     }
 
+    fun part2(input: List<String>): Int {
+        val games = parseInput(input)
+
+        val sum = games.sumOf { game ->
+            game.bags.fold(Bag.EMPTY) { a, b ->
+                Bag(max(a.red, b.red), max(a.green, b.green), max(a.blue, b.blue))
+            }.run { red * green * blue }
+        }
+
+        return sum
+    }
+
     val testInput1 = readInput("Day02_test1")
     check(part1(testInput1) == 8)
 
+    val testInput2 = readInput("Day02_test2")
+    check(part2(testInput2) == 2286)
+
     val input = readInput("Day02")
     part1(input).printlnPrefix("Part1 answer")
+    part2(input).printlnPrefix("Part2 answer")
 }
 
 data class Bag(
     val red: Int,
     val green: Int,
     val blue: Int,
-)
+) {
+    companion object { val EMPTY = Bag(0, 0, 0) }
+}
 
 data class Game(
     val id: Int,

@@ -45,23 +45,22 @@ class GridScanner(
             val numbers = rows[1].numbers()
 
             for ((number, range) in numbers) {
-                var found = false
-                range.forEach { index ->
+                range.find { index ->
                     for (i in 0 until SIZE) {
                         for (j in 0 until SIZE) {
                             val scanned = rows[i][j + index - 1]
-                            if (!scanned.isDigit() && scanned != '.') {
-                                found = true
-                            }
                             if (scanned == '*') {
                                 gears.getOrPut((i + windowIndex) to (j + index - 1)) {
                                     mutableSetOf()
                                 }.add(number)
                             }
+                            if (!scanned.isDigit() && scanned != '.') {
+                                return@find true
+                            }
                         }
                     }
-                }
-                if (found) {
+                    false
+                }?.let {
                     sum += number
                 }
             }

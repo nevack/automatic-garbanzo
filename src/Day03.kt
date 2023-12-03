@@ -39,32 +39,22 @@ class GridScanner(
     fun process(): Pair<Int, Int> {
         val gears = mutableMapOf<Pair<Int, Int>, MutableSet<Int>>()
 
-        var sum = 0
         val scanWindow = scannerLines.windowed(size = SIZE)
-        scanWindow.forEachIndexed { windowIndex, rows ->
-            val numbers = rows[1].numbers()
-
-            for ((number, range) in numbers) {
+        val sum = scanWindow.mapIndexed { windowIndex, rows ->
+            rows[1].numbers().sumOf { (number, range) ->
                 range.find { index ->
-                    for (i in 0 until SIZE) {
-                        for (j in 0 until SIZE) {
-                            val scanned = rows[i][j + index - 1]
-                            if (scanned == '*') {
-                                gears.getOrPut((i + windowIndex) to (j + index - 1)) {
-                                    mutableSetOf()
-                                }.add(number)
-                            }
-                            if (!scanned.isDigit() && scanned != '.') {
-                                return@find true
-                            }
+                    around().any { (i, j) ->
+                        val scanned = rows[i][j + index - 1]
+                        if (scanned == '*') {
+                            gears.getOrPut((i + windowIndex) to (j + index - 1)) {
+                                mutableSetOf()
+                            }.add(number)
                         }
+                        !scanned.isDigit() && scanned != '.'
                     }
-                    false
-                }?.let {
-                    sum += number
-                }
+                }?.let{ number } ?: 0
             }
-        }
+        }.sum()
 
         val power: Int = gears.values.filter { gear -> gear.size >= 2 }.sumOf { numbers ->
             numbers.fold(1) { a: Int, b: Int -> a * b }
@@ -75,6 +65,14 @@ class GridScanner(
 
     private fun String.numbers(): Sequence<Pair<Int, IntRange>> {
         return REGEX.findAll(this).map { match -> match.value.toInt() to match.range }
+    }
+
+    private fun around(): Sequence<Pair<Int, Int>> = sequence {
+        for (i in 0 until SIZE) {
+            for (j in 0 until SIZE) {
+                yield(i to j)
+            }
+        }
     }
 
     companion object {

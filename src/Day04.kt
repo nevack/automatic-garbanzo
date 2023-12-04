@@ -1,34 +1,26 @@
-import kotlin.math.pow
-
 fun main() {
-    fun parseLine(line: String): Card {
-        val (_, numbersStr) = line.split(": ")
+    fun parseLine(line: String): Int {
+        val numbersStr = line.substringAfter(": ")
         val (winningStr, haveStr) = numbersStr.split(" | ")
-        val winning = winningStr.split(' ').filter { it.isNotEmpty() }.map { it.toInt() }
+        val winning = winningStr.split(' ').filter { it.isNotEmpty() }.map { it.toInt() }.toSet()
         val have = haveStr.split(' ').filter { it.isNotEmpty() }.map { it.toInt() }
 
-        return Card(winning.toSet(), have.toSet())
+        return have.count { it in winning }
     }
 
     fun part1(input: List<String>): Int {
-        return input.map { parseLine(it) }.sumOf { card ->
-            val count = card.have.intersect(card.winning).size
-            2.0.pow(count - 1).toInt()
-        }
+        return input.map { parseLine(it) }.filter { it > 0 }.sumOf { matches -> 1 shl (matches - 1) }
     }
 
     fun part2(input: List<String>): Int {
-        val cards = input.map { parseLine(it) }
-        val counts = MutableList(cards.size) { 1 }
+        val counts = IntArray(input.size) { 1 }
 
-        cards.forEachIndexed { i, card ->
-            val count = card.have.intersect(card.winning).size
-            for (next in 1..count) {
+        return input.map { parseLine(it) }.withIndex().sumOf { (i, matches) ->
+            for (next in 1..matches) {
                 counts[i + next] += counts[i]
             }
+            counts[i]
         }
-
-        return counts.sum()
     }
 
     val testInput1 = readInput("Day04_test1")
@@ -41,8 +33,3 @@ fun main() {
     part1(input).printlnPrefix("Part1 answer")
     part2(input).printlnPrefix("Part2 answer")
 }
-
-class Card(
-    val winning: Set<Int>,
-    val have: Set<Int>,
-)

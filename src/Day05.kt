@@ -1,4 +1,23 @@
 fun main() {
+    fun parse(input: List<String>): Pair<List<Long>, List<List<Range>>> {
+        val seeds = input[0].substringAfter("seeds: ").split(' ').map { it.toLong() }
+
+        val mappers = mutableListOf<MutableList<Range>>()
+
+        for (line in input) {
+            if ("seeds: " in line) continue
+            if (line.isEmpty()) continue
+            if (" map:" in line) {
+                mappers += mutableListOf<Range>()
+                continue
+            }
+            val (dest, source, size) = line.split(' ').map { it.toLong() }
+            mappers.last() += Range(source, dest, size)
+        }
+
+        return seeds to mappers
+    }
+
     fun solve(seed: Long, mappers: List<List<Range>>): Long {
         var res = seed
         for (mapper in mappers) {
@@ -13,29 +32,33 @@ fun main() {
     }
 
     fun part1(input: List<String>): Long {
-        val seeds = input[0].substringAfter("seeds: ").split(' ').map { it.toLong() }
+        val (seeds, mappers) = parse(input)
 
-        val mapper = mutableListOf<MutableList<Range>>()
+        return seeds.map { seed -> solve(seed, mappers) }.min()
+    }
 
-        for (line in input) {
-            if ("seeds: " in line) continue
-            if (line.isEmpty()) continue
-            if (" map:" in line) {
-                mapper += mutableListOf<Range>()
-                continue
+    fun part2(input: List<String>): Long {
+        val (seeds, mappers) = parse(input)
+        val seedRanges = seeds.windowed(2, 2)
+        var min = Long.MAX_VALUE
+        for ((start, count) in seedRanges) {
+            for (i in 0 until count) {
+                val solved = solve(start + i, mappers)
+                min = kotlin.math.min(min, solved)
             }
-            val (dest, source, size) = line.split(' ').map { it.toLong() }
-            mapper.last() += Range(source, dest, size)
         }
-
-        return seeds.map { solve(it, mapper) }.min()
+        return min
     }
 
     val testInput1 = readInput("Day05_test1")
     check(part1(testInput1) == 35L)
 
+    val testInput2 = readInput("Day05_test1")
+    check(part2(testInput2) == 46L)
+
     val input = readInput("Day05")
     part1(input).printlnPrefix("Part1 answer")
+    part2(input).printlnPrefix("Part2 answer")
 }
 
 data class Range(

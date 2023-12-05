@@ -1,3 +1,6 @@
+import kotlin.math.max
+import kotlin.math.min
+
 fun main() {
     fun parse(input: List<String>): Pair<List<Long>, List<List<Range>>> {
         val seeds = input[0].substringAfter("seeds: ").split(' ').map { it.toLong() }
@@ -31,6 +34,37 @@ fun main() {
         return res
     }
 
+    fun solveRangeIter(scanRanges: List<Pair<Long, Long>>, mapper: List<Range>): List<Pair<Long, Long>> {
+        val inside = mutableListOf<Pair<Long, Long>>()
+        val outside = mapper.fold(scanRanges) { pending, range ->
+            val sourceEnd = range.source + range.size
+            val diff = range.dest - range.source
+            pending.flatMap { (start, end) ->
+                val left = start to (min(end, range.source))
+                val center = max(start, range.source) to min(sourceEnd, end)
+                val right = max(sourceEnd, start) to end
+
+                val outsides = listOfNotNull(
+                    left.takeIf { it.second > it.first },
+                    right.takeIf { it.second > it.first }
+                )
+                if (center.second > center.first) {
+                    inside += (center.first + diff) to (center.second + diff)
+                }
+                outsides
+            }
+        }
+        return inside + outside
+    }
+
+    fun solveRange(seedRanges: List<Pair<Long, Long>>, mappers: List<List<Range>>): Long {
+        return seedRanges.minOf { seedRange ->
+            mappers.fold(listOf(seedRange.first to seedRange.first + seedRange.second)) { scan, mapper ->
+                solveRangeIter(scan, mapper)
+            }.minOf { it.first }
+        }
+    }
+
     fun part1(input: List<String>): Long {
         val (seeds, mappers) = parse(input)
 
@@ -39,15 +73,10 @@ fun main() {
 
     fun part2(input: List<String>): Long {
         val (seeds, mappers) = parse(input)
-        val seedRanges = seeds.windowed(2, 2)
-        var min = Long.MAX_VALUE
-        for ((start, count) in seedRanges) {
-            for (i in 0 until count) {
-                val solved = solve(start + i, mappers)
-                min = kotlin.math.min(min, solved)
-            }
-        }
-        return min
+        val sortedMappers = mappers.map { mapper -> mapper.sortedBy { range ->  range.source } }
+        val seedRanges = seeds.chunked(2) { it[0] to it[1] }
+
+        return solveRange(seedRanges, sortedMappers)
     }
 
     val testInput1 = readInput("Day05_test1")

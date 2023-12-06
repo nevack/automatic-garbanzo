@@ -1,43 +1,42 @@
 
 fun main() {
-    fun parse(input: List<String>): List<Race> {
+    fun parseRaw(input: List<String>): Pair<List<String>, List<String>> {
         check(input.size == 2)
-        val times = input[0].substringAfter("Time:     ").split(' ').filter { it.isNotEmpty() }.map { it.toLong() }
-        val dists = input[1].substringAfter("Distance: ").split(' ').filter { it.isNotEmpty() }.map { it.toLong() }
+        val times = input[0].substringAfter("Time:     ").split(' ').filter { it.isNotEmpty() }
+        val dists = input[1].substringAfter("Distance: ").split(' ').filter { it.isNotEmpty() }
         check(times.size == dists.size)
+        return times to dists
+    }
 
-        val races = times.mapIndexed { index, time ->
-            val dist = dists[index]
-            Race(time, dist)
-        }
+    fun parse1(input: List<String>): List<Race> {
+        val (times, dists) = parseRaw(input)
 
-        return races
+        return times.zip(dists) { time, dist -> Race(time.toLong(), dist.toLong()) }
     }
 
     fun parse2(input: List<String>): Race {
-        check(input.size == 2)
-        val time = input[0].substringAfter("Time:     ").split(' ').filter { it.isNotEmpty() }.joinToString("").toLong()
-        val dist = input[1].substringAfter("Distance: ").split(' ').filter { it.isNotEmpty() }.joinToString("").toLong()
+        val (times, dists) = parseRaw(input)
+        val time = times.joinToString("").toLong()
+        val dist = dists.joinToString("").toLong()
 
         return Race(time, dist)
     }
 
-    fun part1(input: List<String>): Int {
-        val races = parse(input)
+    fun solve(race: Race): Int {
+        return (1..race.time).filter { time ->
+            race.dist < time * (race.time - time)
+        }.size
+    }
 
-        return races.fold(1) { cur, race ->
-            cur * (1..race.time).filter { time ->
-                race.dist < time * (race.time - time)
-            }.size
-        }
+    fun part1(input: List<String>): Int {
+        val races = parse1(input)
+
+        return races.fold(1) { cur, race -> cur * solve(race) }
     }
 
     fun part2(input: List<String>): Int {
         val race = parse2(input)
-
-        return (1..race.time).filter { time ->
-            race.dist < time * (race.time - time)
-        }.size
+        return solve(race)
     }
 
     val testInput1 = readInput("Day06_test1")

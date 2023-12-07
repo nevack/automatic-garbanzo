@@ -44,6 +44,7 @@ fun main() {
     val input = readInput("Day07")
     part1(input).printlnPrefix("Part1 answer")
     part2(input).printlnPrefix("Part2 answer")
+
 }
 
 data class Hand(
@@ -51,55 +52,17 @@ data class Hand(
     val bid: Int,
 ) {
     fun type(withJoker: Boolean = false): Int {
-        val charMap = cards.groupingBy { it }.eachCount()
         val jokers = if (withJoker) cards.count { card -> card == 'J'} else 0
 
-        if (charMap.any { (_, v) -> v == 5 }) {
-            return 9 // Five
-        }
+        val charMap = cards.groupingBy { it }.eachCount().filterNot {
+            withJoker && it.key == 'J' && it.value != 5
+        }.toList().sortedByDescending { it.second }.map { it.second }.toIntArray()
 
-        if (charMap.any { (_, v) -> v == 4 }) {
-            if (jokers == 1 || jokers == 4) {
-                return 9 // Five
-            }
-            return 8 // Four
-        }
+        charMap[0] += if (jokers == 5) 0 else jokers
 
-        if (charMap.any { (_, v) -> v == 3 }) {
-            if (jokers in 1..2) {
-                return 7 + jokers // Four or Five
-            }
-            if (charMap.any { (_, v) -> v == 2 }) {
-                if (jokers == 3) {
-                    return 9 // Five
-                }
-                return 7 // Full House
-            }
-            return 6 // Three
+        return 9 - possibleSolutions.indexOfFirst { solution ->
+            charMap contentEquals solution
         }
-
-        if (charMap.count { (_, v) -> v == 2 } == 2) {
-            if (jokers in 1..2) {
-                return 6 + jokers // Full House or Four
-            }
-            return 5 // Two Pair
-        }
-
-        if (charMap.count { (_, v) -> v == 2 } == 1) {
-            if (jokers in 1..2) {
-                return 6 // Three
-            }
-            return 4 // One Pair
-        }
-
-        if (charMap.count { (_, v) -> v == 1 } == 5) {
-            if (jokers == 1) {
-                return 4 // One Pair
-            }
-            return 3 // High card
-        }
-
-        return 0 // Nothing
     }
 
     fun cardsForSorting(withJoker: Boolean = false): String {
@@ -115,3 +78,13 @@ data class Hand(
         }.joinToString("")
     }
 }
+
+val possibleSolutions = listOf(
+    intArrayOf(5), // Five
+    intArrayOf(4, 1), // Four
+    intArrayOf(3, 2), // Full House
+    intArrayOf(3, 1, 1), // Three
+    intArrayOf(2, 2, 1), // Two Pair
+    intArrayOf(2, 1, 1, 1), // One Pair
+    intArrayOf(1, 1, 1, 1, 1), // High Card
+)

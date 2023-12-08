@@ -33,13 +33,46 @@ fun main() {
         return count
     }
 
+    fun part2(input: List<String>): Long {
+        val (moves, mapped)  = parse(input)
+
+        return mapped.keys.filter { it.last() == 'A' }.map { start ->
+            var index = 0
+            var current = start
+            val visited = mutableMapOf<Pair<Int, String>, Int>()
+
+            while (true) {
+                val adjusted = index % moves.size
+                val step = adjusted to current
+                if (step in visited) break
+                visited[step] = index
+                current = checkNotNull(
+                    when (moves[adjusted]) {
+                        "L" -> mapped[current]?.first
+                        "R" -> mapped[current]?.second
+                        else -> null
+                    }
+                )
+                index++
+            }
+            val last = checkNotNull(visited[index % moves.size to current])
+            index - last // Loop Size
+        }.fold(1L) { a, b -> lcm(a, b.toLong()) }
+    }
+
     val testInput1 = readInput("Day08_test1")
     check(part1(testInput1) == 2)
     val testInput2 = readInput("Day08_test2")
     check(part1(testInput2) == 6)
+    val testInput3 = readInput("Day08_test3")
+    check(part2(testInput3) == 6L)
 
     val input = readInput("Day08")
     part1(input).printlnPrefix("Part1 answer")
+    part2(input).printlnPrefix("Part2 answer")
 }
 
 val REGEX = """(\w+) = \((\w+), (\w+)\)""".toRegex()
+
+tailrec fun gcd(a: Long, b: Long): Long = if (b == 0L) a else gcd(b, a % b)
+fun lcm(a: Long, b: Long) = a * b / gcd(a, b)

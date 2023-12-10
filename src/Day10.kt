@@ -20,7 +20,7 @@ fun main() {
         return i to j
     }
 
-    fun part1(input: List<String>): Int {
+    fun findLoop(input: List<String>): List<Pair<Int, Int>> {
         val size = findSize(input)
         val start = findStart(input)
 
@@ -40,7 +40,7 @@ fun main() {
                 // Skip move we came from
                 if (next == prev) continue
                 // Loop found
-                if (next == start) return loop.size / 2
+                if (next == start) return loop
 
                 val nextAvailableMoves = pipesToMoves[input[next]] ?: continue
                 prev = cur
@@ -51,11 +51,59 @@ fun main() {
         }
     }
 
+    fun part1(input: List<String>): Int {
+        return findLoop(input).size / 2
+    }
+
+    fun part2(input: List<String>): Int {
+        val loop = findLoop(input)
+        val size = findSize(input)
+
+        val field = Array(size.first) { IntArray(size.second) { -1 } }
+
+        loop.forEachIndexed { index, step ->
+            field[step] = index
+        }
+
+        var cnt = 0
+        field.forEachIndexed { i, row ->
+            var insideLoop = false
+            var direction = 'X'
+
+            row.forEachIndexed { j, step ->
+                if (step >= 0) {
+                    val prevStep = (step - 1).mod(loop.size)
+                    val nextStep = (step + 1).mod(loop.size)
+                    val prev = loop[prevStep]
+                    val next = loop[nextStep]
+
+                    val up = next.first < i || prev.first < i
+                    val down = next.first > i || prev.first > i
+                    val left = next.second < j || prev.second < j
+                    val right = next.second > j || prev.second > j
+
+                    when {
+                        up && down -> insideLoop = !insideLoop
+                        down && right -> direction = 'D'
+                        down && left -> if (direction == 'U') insideLoop = !insideLoop
+                        up && right -> direction = 'U'
+                        up && left -> if (direction == 'D') insideLoop = !insideLoop
+                    }
+                } else if (insideLoop) {
+                    cnt++
+                }
+            }
+        }
+
+        return cnt
+    }
+
     val testInput1 = readInput("Day10_test1")
     check(part1(testInput1) == 8)
 
     val input = readInput("Day10")
     part1(input).printlnPrefix("Part1 answer")
+    part2(input).printlnPrefix("Part2 answer")
 }
 
 // Pipe to (Right,Bottom,Left,Top) move availability.
@@ -85,4 +133,8 @@ private operator fun Pair<Int, Int>.plus(other: Pair<Int, Int>): Pair<Int, Int> 
 
 private operator fun List<String>.get(index: Pair<Int, Int>): Char {
     return this[index.first][index.second]
+}
+
+private operator fun Array<IntArray>.set(index: Pair<Int, Int>, value: Int) {
+    this[index.first][index.second] = value
 }

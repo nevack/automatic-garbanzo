@@ -51,21 +51,15 @@ fun main() {
         }
     }
 
-    fun part1(input: List<String>): Int {
-        return findLoop(input).size / 2
-    }
-
-    fun part2(input: List<String>): Int {
-        val loop = findLoop(input)
-        val size = findSize(input)
-
+    fun findInside(size: Pair<Int, Int>, loop: List<Pair<Int, Int>>): List<Pair<Int, Int>> {
         val field = Array(size.first) { IntArray(size.second) { -1 } }
 
         loop.forEachIndexed { index, step ->
             field[step] = index
         }
 
-        var cnt = 0
+        val inside = mutableListOf<Pair<Int, Int>>()
+
         field.forEachIndexed { i, row ->
             var insideLoop = false
             var direction = 'X'
@@ -90,12 +84,22 @@ fun main() {
                         up && left -> if (direction == 'D') insideLoop = !insideLoop
                     }
                 } else if (insideLoop) {
-                    cnt++
+                    inside += i to j
                 }
             }
         }
+        return inside
+    }
 
-        return cnt
+    fun part1(input: List<String>): Int {
+        return findLoop(input).size / 2
+    }
+
+    fun part2(input: List<String>): Int {
+        val loop = findLoop(input)
+        val size = findSize(input)
+
+        return findInside(size, loop).size
     }
 
     val testInput1 = readInput("Day10_test1")
@@ -104,6 +108,12 @@ fun main() {
     val input = readInput("Day10")
     part1(input).printlnPrefix("Part1 answer")
     part2(input).printlnPrefix("Part2 answer")
+
+    // Fun
+    val loop = findLoop(input)
+    val size = findSize(input)
+    val inside = findInside(size, loop)
+    prettyPrintPipes(input, loop.toSet(), inside.toSet())
 }
 
 // Pipe to (Right,Bottom,Left,Top) move availability.
@@ -137,4 +147,47 @@ private operator fun List<String>.get(index: Pair<Int, Int>): Char {
 
 private operator fun Array<IntArray>.set(index: Pair<Int, Int>, value: Int) {
     this[index.first][index.second] = value
+}
+
+// Fun
+private val prettyPrintMapping = mapOf(
+    '|' to '│',
+    '-' to '─',
+    'F' to '┌',
+    'L' to '└',
+    '7' to '┐',
+    'J' to '┘',
+)
+
+private fun prettyPrintPipes(input: List<String>, loop: Set<Pair<Int, Int>> = emptySet(), inside: Set<Pair<Int, Int>> = emptySet()) {
+    fun red() = print("\u001b[31m")
+    fun green() = print("\u001b[32m")
+    fun yellow() = print("\u001b[33m")
+    fun dim() = print("\u001b[38;5;240m")
+    fun reset() = print("\u001b[0m")
+
+    input.map { line ->
+        prettyPrintMapping.entries.fold(line) { s, (from, to) -> s.replace(from, to) }
+    }.forEachIndexed { i, line ->
+        line.forEachIndexed { j, char ->
+            if (char == 'S') {
+                red()
+                print(char)
+                reset()
+            } else if (i to j in loop) {
+                green()
+                print(char)
+                reset()
+            } else if (i to j in inside) {
+                yellow()
+                print('#')
+                reset()
+            } else {
+                dim()
+                print(char)
+                reset()
+            }
+        }
+        println()
+    }
 }

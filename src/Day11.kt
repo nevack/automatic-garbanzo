@@ -12,15 +12,15 @@ fun main() {
         return n to m
     }
 
-    fun part1(input: List<String>): Int {
+    fun solve(input: List<String>, factor: Int = 2): Long {
         val field = parse(input)
         val (n, m) = findSize(input)
 
         val horizontalFactors = IntArray(m) { i ->
-            if ((0..<m).all { j -> field[i][j] == '.'}) 2 else 1
+            if ((0..<m).all { j -> field[i][j] == '.'}) factor else 1
         }
         val verticalFactors = IntArray(n) { j ->
-            if ((0..<n).all { i -> field[i][j] == '.'}) 2 else 1
+            if ((0..<n).all { i -> field[i][j] == '.'}) factor else 1
         }
 
         val galaxies = mutableListOf<Pair<Int, Int>>()
@@ -45,15 +45,27 @@ fun main() {
             }
         }
 
-        val sumHorizontal = horizontalPaths.zip(horizontalFactors).sumOf { (paths, factor) -> paths * factor }
-        val sumVertical = verticalPaths.zip(verticalFactors).sumOf { (paths, factor) -> paths * factor }
+        val sumHorizontal = horizontalPaths.zip(horizontalFactors).sumOf { (paths, factor) -> 1L * paths * factor }
+        val sumVertical = verticalPaths.zip(verticalFactors).sumOf { (paths, factor) -> 1L * paths * factor }
 
         return sumHorizontal + sumVertical
     }
 
+    fun part1(input: List<String>): Long {
+        return solve(input)
+    }
+
+    fun part2(input: List<String>, factor: Int = 1_000_000): Long {
+        return solve(input, factor)
+    }
+
     val testInput1 = readInput("Day11_test1")
-    check(part1(testInput1) == 374)
+    check(part1(testInput1) == 374L)
+    val testInput2 = readInput("Day11_test1")
+    check(part2(testInput2, 10) == 1030L)
+    check(part2(testInput2, 100) == 8410L)
 
     val input = readInput("Day11")
     part1(input).printlnPrefix("Part1 answer")
+    part2(input).printlnPrefix("Part2 answer")
 }

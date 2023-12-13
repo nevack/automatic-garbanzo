@@ -3,15 +3,6 @@ fun main() {
         return Array(input.size) { index -> input[index].toCharArray() }
     }
 
-    fun findSize(input: List<String>): Pair<Int, Int> {
-        val n = input.size
-        val m = input.first().length
-
-        input.forEach { line -> check(line.length == m) }
-
-        return n to m
-    }
-
     fun solve(input: List<String>, factor: Int = 2): Long {
         val field = parse(input)
         val (n, m) = findSize(input)

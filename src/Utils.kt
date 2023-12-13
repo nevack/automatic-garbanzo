@@ -24,3 +24,14 @@ fun Any?.println() = println(this)
  * The cleaner shorthand for printing output with prefix.
  */
 fun Any?.printlnPrefix(prefix: String) = println("$prefix: $this")
+
+typealias Size = Pair<Int, Int>
+
+fun findSize(input: List<String>): Size {
+    val n = input.size
+    val m = input.first().length
+
+    input.forEach { line -> check(line.length == m) }
+
+    return n to m
+}

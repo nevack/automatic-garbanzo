@@ -12,15 +12,6 @@ fun main() {
         if (result.isNotEmpty()) add(result)
     }
 
-    fun findSize(input: List<String>): Pair<Int, Int> {
-        val n = input.size
-        val m = input.first().length
-
-        input.forEach { line -> check(line.length == m) }
-
-        return n to m
-    }
-
     fun solve(input: List<String>, threshold: Int = 0): Int {
         val fields = parse(input)
         var sum = 0

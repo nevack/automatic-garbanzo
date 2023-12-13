@@ -1,15 +1,4 @@
 fun main() {
-    fun findSize(input: List<String>): Pair<Int, Int> {
-        val n = input.size
-        val m = input.first().length
-
-        input.forEach { line ->
-            check(line.length == m)
-        }
-
-        return n to m
-    }
-
     fun findStart(input: List<String>): Pair<Int, Int> {
         check(input.count { "S" in it } == 1)
         val i = checkNotNull(input.indexOfFirst { "S" in it })

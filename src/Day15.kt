@@ -15,9 +15,34 @@ fun main() {
         return parts.sumOf { part -> hash(part) }
     }
 
+    fun part2(input: List<String>): Int {
+        val parts = parse(input)
+
+        val boxes = mutableMapOf<Int, MutableMap<String, Int>>()
+
+        for (part in parts) {
+            if (part.endsWith("-")) {
+                val label = part.removeSuffix("-")
+                boxes[hash(label)]?.remove(label)
+            } else {
+                val (label, numberStr) = part.split("=")
+                boxes.getOrPut(hash(label)) { mutableMapOf() }.put(label, numberStr.toInt())
+            }
+        }
+
+        return boxes.entries.sumOf { (box, lenses) ->
+            lenses.values.withIndex().sumOf { (lensIndex, focalLength) ->
+                (box + 1) * (lensIndex + 1) * focalLength
+            }
+        }
+    }
+
     val testInput1 = readInput("Day15_test1")
     check(part1(testInput1) == 1320)
+    val testInput2 = readInput("Day15_test1")
+    check(part2(testInput2) == 145)
 
     val input = readInput("Day15")
     part1(input).printlnPrefix("Part1 answer")
+    part2(input).printlnPrefix("Part2 answer")
 }

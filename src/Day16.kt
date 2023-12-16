@@ -15,7 +15,7 @@ fun main() {
             beams += Beam(i, j, d)
         }
 
-        tryAddNextBeam(startBeam.x, startBeam.y, startBeam.direction)
+        tryAddNextBeam(startBeam.i, startBeam.j, startBeam.direction)
 
         while (beams.any()) {
             val (i, j, d) = beams.removeFirst()
@@ -74,8 +74,8 @@ fun main() {
 }
 
 data class Beam(
-    val x: Int,
-    val y: Int,
+    val i: Int,
+    val j: Int,
     val direction: Direction,
 ) {
     enum class Direction(val di: Int, val dj: Int) {

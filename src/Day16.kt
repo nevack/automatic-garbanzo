@@ -1,7 +1,7 @@
 import java.util.ArrayDeque
 
 fun main() {
-    fun part1(input: List<String>): Int {
+    fun solve(input: List<String>, startBeam: Beam): Int {
         val (n, m) = findSize(input)
         val visited = Array(n) { Array(m) { BooleanArray(Beam.Direction.entries.size) } }
         val beams = ArrayDeque<Beam>()
@@ -15,7 +15,7 @@ fun main() {
             beams += Beam(i, j, d)
         }
 
-        tryAddNextBeam(0, -1, Beam.Direction.RIGHT)
+        tryAddNextBeam(startBeam.x, startBeam.y, startBeam.direction)
 
         while (beams.any()) {
             val (i, j, d) = beams.removeFirst()
@@ -49,11 +49,28 @@ fun main() {
         }
     }
 
+    fun part1(input: List<String>): Int {
+        return solve(input, Beam(0, -1, Beam.Direction.RIGHT))
+    }
+
+    fun part2(input: List<String>): Int {
+        val (n, m) = findSize(input)
+        return listOf(
+            (0..<n).maxOf { i -> solve(input, Beam(i, -1, Beam.Direction.RIGHT)) },
+            (0..<m).maxOf { j -> solve(input, Beam(-1, j, Beam.Direction.DOWN)) },
+            (0..<n).maxOf { i -> solve(input, Beam(i, m, Beam.Direction.LEFT)) },
+            (0..<m).maxOf { j -> solve(input, Beam(n, j, Beam.Direction.UP)) },
+        ).max()
+    }
+
     val testInput1 = readInput("Day16_test1")
     check(part1(testInput1) == 46)
+    val testInput2 = readInput("Day16_test1")
+    check(part2(testInput2) == 51)
 
     val input = readInput("Day16")
     part1(input).printlnPrefix("Part1 answer")
+    part2(input).printlnPrefix("Part2 answer")
 }
 
 data class Beam(

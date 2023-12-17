@@ -63,8 +63,7 @@ fun main() {
 
     val testInput1 = readInput("Day16_test1")
     check(part1(testInput1) == 46)
-    val testInput2 = readInput("Day16_test1")
-    check(part2(testInput2) == 51)
+    check(part2(testInput1) == 51)
 
     val input = readInput("Day16")
     part1(input).printlnPrefix("Part1 answer")

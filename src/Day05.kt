@@ -81,9 +81,7 @@ fun main() {
 
     val testInput1 = readInput("Day05_test1")
     check(part1(testInput1) == 35L)
-
-    val testInput2 = readInput("Day05_test1")
-    check(part2(testInput2) == 46L)
+    check(part2(testInput1) == 46L)
 
     val input = readInput("Day05")
     part1(input).printlnPrefix("Part1 answer")

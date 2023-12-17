@@ -93,6 +93,8 @@ fun main() {
 
     val testInput1 = readInput("Day10_test1")
     check(part1(testInput1) == 8)
+    val testInput2 = readInput("Day10_test2")
+    check(part2(testInput2) == 8)
 
     val input = readInput("Day10")
     part1(input).printlnPrefix("Part1 answer")

@@ -122,10 +122,6 @@ val around = listOf(
     -1 to 0, // Top
 )
 
-private operator fun Pair<Int, Int>.contains(other: Pair<Int, Int>): Boolean {
-    return other.first in 0..<first && other.second in 0..<second
-}
-
 private operator fun Pair<Int, Int>.plus(other: Pair<Int, Int>): Pair<Int, Int> {
     return first + other.first to second + other.second
 }

@@ -29,7 +29,7 @@ fun main() {
 
             for (direction in nextDirections) {
                 val nextPos = node.position moveTo direction
-                if (nextPos.first !in 0..<n || nextPos.second !in 0..<m) continue
+                if (nextPos !in n to m) continue
 
                 val nextCount = 1 + if (direction == node.direction) node.count else 0
 

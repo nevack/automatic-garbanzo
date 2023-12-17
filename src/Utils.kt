@@ -35,3 +35,7 @@ fun findSize(input: List<String>): Size {
 
     return n to m
 }
+
+operator fun Size.contains(point: Pair<Int, Int>): Boolean {
+    return point.first in 0..<first && point.second in 0..<second
+}

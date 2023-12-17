@@ -66,8 +66,8 @@ fun main() {
     check(part2(testInput1) == 51)
 
     val input = readInput("Day16")
-    part1(input).printlnPrefix("Part1 answer")
-    part2(input).printlnPrefix("Part2 answer")
+    timed("Part1 answer") { part1(input) }
+    timed("Part2 answer") { part2(input) }
 }
 
 private data class Beam(

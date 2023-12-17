@@ -42,6 +42,6 @@ fun main() {
     check(part2(testInput1) == 145)
 
     val input = readInput("Day15")
-    part1(input).printlnPrefix("Part1 answer")
-    part2(input).printlnPrefix("Part2 answer")
+    timed("Part1 answer") { part1(input) }
+    timed("Part2 answer") { part2(input) }
 }

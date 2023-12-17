@@ -2,6 +2,7 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
+import kotlin.time.measureTime
 
 /**
  * Reads lines from the given input txt file.
@@ -38,4 +39,12 @@ fun findSize(input: List<String>): Size {
 
 operator fun Size.contains(point: Pair<Int, Int>): Boolean {
     return point.first in 0..<first && point.second in 0..<second
+}
+
+fun <T> timed(prefix: String, block: () -> T) {
+    print("$prefix: ")
+    val measured = measureTime {
+        print(block())
+    }
+    println(" (took ${measured.inWholeMilliseconds}ms)")
 }

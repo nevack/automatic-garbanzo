@@ -44,8 +44,8 @@ fun main() {
     check(part2(testInput1) == 71503)
 
     val input = readInput("Day06")
-    part1(input).printlnPrefix("Part1 answer")
-    part2(input).printlnPrefix("Part1 answer")
+    timed("Part1 answer") { part1(input) }
+    timed("Part2 answer") { part2(input) }
 }
 
 data class Race(

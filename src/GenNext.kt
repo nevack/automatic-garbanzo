@@ -14,7 +14,8 @@ fun main() {
     check(part1(testInput1) == 0)
 
     val input = readInput("{day}")
-    part1(input).printlnPrefix("Part1 answer")
+    timed("Part1 answer") { part1(input) }
+    // timed("Part2 answer") { part2(input) }
 }
 """.trimStart()
 

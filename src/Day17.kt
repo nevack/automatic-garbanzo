@@ -10,34 +10,34 @@ fun main() {
         queue.offer(Entry(0, Node(0 to 0, Direction.RIGHT, 0)))
 
         while (queue.any()) {
-            val entry = queue.poll()
-            if (entry.node in seen) continue
-            seen += entry.node
+            val (cost, node) = queue.poll()
+            if (node in seen) continue
+            seen += node
 
-            if (entry.node.position == end && entry.node.count >= minCount) {
-                return entry.cost
+            if (node.position == end && node.count >= minCount) {
+                return cost
             }
 
             val nextDirections = mutableListOf<Direction>()
-            if (entry.node.count < maxCount) {
-                nextDirections += entry.node.direction
+            if (node.count < maxCount) {
+                nextDirections += node.direction
             }
-            if (entry.node.count >= minCount) {
-                nextDirections += entry.node.direction + 1
-                nextDirections += entry.node.direction - 1
+            if (node.count >= minCount) {
+                nextDirections += node.direction + 1
+                nextDirections += node.direction - 1
             }
 
             for (direction in nextDirections) {
-                val nextPos = entry.node.position moveTo direction
+                val nextPos = node.position moveTo direction
                 if (nextPos.first !in 0..<n || nextPos.second !in 0..<m) continue
 
-                val nextCount = 1 + if (direction == entry.node.direction) entry.node.count else 0
+                val nextCount = 1 + if (direction == node.direction) node.count else 0
 
-                val next = Node(nextPos, direction, nextCount)
-                if (next in seen) continue
+                val nextNode = Node(nextPos, direction, nextCount)
+                if (nextNode in seen) continue
 
-                val nextCost = entry.cost + input[nextPos.first][nextPos.second].digitToInt()
-                queue.offer(Entry(nextCost, next))
+                val nextCost = cost + input[nextPos.first][nextPos.second].digitToInt()
+                queue.offer(Entry(nextCost, nextNode))
             }
         }
 
@@ -72,7 +72,5 @@ private data class Entry(
     val cost: Int,
     val node: Node,
 ): Comparable<Entry> {
-    override fun compareTo(other: Entry): Int {
-        return cost - other.cost
-    }
+    override fun compareTo(other: Entry): Int = cost - other.cost
 }

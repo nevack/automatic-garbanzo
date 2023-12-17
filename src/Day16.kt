@@ -4,41 +4,39 @@ fun main() {
     fun solve(input: List<String>, startBeam: Beam): Int {
         val (n, m) = findSize(input)
         val visited = Array(n) { Array(m) { BooleanArray(Direction.entries.size) } }
-        val beams = ArrayDeque<Beam>()
-
-        fun tryAddNextBeam(i0: Int, j0: Int, d: Direction) {
-            val i = i0 + d.di
-            val j = j0 + d.dj
-            if (i !in 0..<n || j !in 0..<m) return
-            if (visited[i][j][d.ordinal]) return
-            visited[i][j][d.ordinal] = true
-            beams += Beam(i, j, d)
+        val beams = object : ArrayDeque<Beam>() {
+            override fun add(element: Beam): Boolean {
+                if (element.i !in 0..<n || element.j !in 0..<m) return false
+                if (visited[element.i][element.j][element.direction.ordinal]) return false
+                visited[element.i][element.j][element.direction.ordinal] = true
+                return super.add(element)
+            }
         }
 
-        tryAddNextBeam(startBeam.i, startBeam.j, startBeam.direction)
+        beams += startBeam moveTo startBeam.direction
 
         while (beams.any()) {
-            val (i, j, d) = beams.removeFirst()
-            when (input[i][j]) {
-                '\\' -> tryAddNextBeam(i, j, d xor 0b01)
+            val beam = beams.removeFirst()
+            when (input[beam.i][beam.j]) {
+                '\\' -> beams += beam moveTo (beam.direction xor 0b01)
 
-                '/' -> tryAddNextBeam(i, j, d xor 0b11)
+                '/' -> beams += beam moveTo (beam.direction xor 0b11)
 
-                '|' -> if (d == Direction.LEFT || d == Direction.RIGHT) {
-                    tryAddNextBeam(i, j, Direction.UP)
-                    tryAddNextBeam(i, j, Direction.DOWN)
+                '|' -> if (beam.direction == Direction.LEFT || beam.direction == Direction.RIGHT) {
+                    beams += beam moveTo Direction.UP
+                    beams += beam moveTo Direction.DOWN
                 } else {
-                    tryAddNextBeam(i, j, d)
+                    beams += beam moveTo beam.direction
                 }
 
-                '-' -> if (d == Direction.UP || d == Direction.DOWN) {
-                    tryAddNextBeam(i, j, Direction.LEFT)
-                    tryAddNextBeam(i, j, Direction.RIGHT)
+                '-' -> if (beam.direction == Direction.UP || beam.direction == Direction.DOWN) {
+                    beams += beam moveTo Direction.LEFT
+                    beams += beam moveTo Direction.RIGHT
                 } else {
-                    tryAddNextBeam(i, j, d)
+                    beams += beam moveTo beam.direction
                 }
 
-                else -> tryAddNextBeam(i, j, d)
+                else -> beams += beam moveTo beam.direction
             }
         }
 
@@ -73,9 +71,12 @@ fun main() {
     part2(input).printlnPrefix("Part2 answer")
 }
 
-data class Beam(
+private data class Beam(
     val i: Int,
     val j: Int,
     val direction: Direction,
 ) {
+    infix fun moveTo(direction: Direction): Beam {
+        return Beam(i + direction.di, j + direction.dj, direction)
+    }
 }

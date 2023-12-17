@@ -19,7 +19,17 @@ fun main() {
 }
 """.trimStart()
 
-fun main() {
+fun main(args: Array<String>) {
+    require(args.size <= 1) { "Only one optional args is allowed - count of test cases to generate"}
+    val testCaseCount = if (args.size == 1) {
+        requireNotNull(args.first().toIntOrNull()) {
+            "The only optional argument must be an integer number"
+        }
+    } else 1
+    require(testCaseCount > 0) {
+        "At least one test case must be generated"
+    }
+
     val lastDay = PREFIX.listDirectoryEntries("Day*.kt")
         .map { it.name }
         .filter { it.startsWith("Day") && it.endsWith(".kt") }
@@ -34,8 +44,9 @@ fun main() {
         KT_TEMPLATE.replace("{day}", filename)
     )
     PREFIX.resolve("$filename.txt").createFile()
-    PREFIX.resolve("${filename}_test1.txt").createFile()
-    PREFIX.resolve("${filename}_test2.txt").createFile()
+    for (testCase in 1..testCaseCount) {
+        PREFIX.resolve("${filename}_test${testCase}.txt").createFile()
+    }
 
     println("Done!")
 }

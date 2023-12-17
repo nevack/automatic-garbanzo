@@ -17,6 +17,10 @@ enum class Direction(val di: Int, val dj: Int) {
     operator fun minus(rotation: Int): Direction {
         return entries[(ordinal - rotation + entries.size) % entries.size]
     }
+
+    operator fun not(): Direction {
+        return xor(0b10)
+    }
 }
 
 infix fun Pair<Int, Int>.moveTo(direction: Direction): Pair<Int, Int> {

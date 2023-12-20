@@ -48,3 +48,8 @@ fun <T> timed(prefix: String, block: () -> T) {
     }
     println(" (took ${measured.inWholeMilliseconds}ms)")
 }
+
+tailrec fun gcd(a: Long, b: Long): Long = if (b == 0L) a else gcd(b, a % b)
+fun lcm(a: Long, b: Long) = a * b / gcd(a, b)
+
+fun lcm(l: List<Long>): Long = l.fold(1L) { a, b -> lcm(a, b) }

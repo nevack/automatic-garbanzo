@@ -1,3 +1,5 @@
+import java.util.ArrayDeque
+
 fun main() {
     fun parseOutcome(outcomeStr: String): Outcome {
         return when (outcomeStr) {
@@ -79,17 +81,71 @@ fun main() {
             }
         }
 
-        println(accepted)
-
         return accepted.sumOf { part -> part.x + part.m + part.a + part.s }
+    }
+
+    fun part2(input: List<String>): Long {
+        val (workflows, _) = parse(input)
+        val mapping = workflows.associateBy { it.name }
+
+        val startState = State(
+            Outcome.Workflow("in"),
+            PartRanges(
+                1..4000,
+                1..4000,
+                1..4000,
+                1..4000,
+            )
+        )
+
+        val queue = ArrayDeque<State>().apply { offer(startState) }
+        val accepted = mutableListOf<PartRanges>()
+
+        while (queue.any()) {
+            val (outcome, ranges) = queue.pop()
+
+            val workflow = when (outcome) {
+                is Outcome.Accept -> {
+                    accepted += ranges
+                    continue
+                }
+
+                is Outcome.Reject -> {
+                    continue
+                }
+
+                is Outcome.Workflow -> {
+                    checkNotNull(mapping[outcome.name])
+                }
+            }
+
+            workflow.rules.fold(ranges) { curRanges, rule ->
+                when (rule) {
+                    is Rule.Unconditional -> {
+                        queue += State(rule.outcome, curRanges)
+                        curRanges
+                    }
+
+                    is Rule.Conditional -> {
+                        queue += State(rule.outcome, applyRanges(rule, curRanges))
+                        applyRanges(!rule, curRanges)
+                    }
+                }
+            }
+        }
+
+        return accepted.sumOf { partRanges ->
+            1L * partRanges.x.length() * partRanges.m.length() * partRanges.a.length() * partRanges.s.length()
+        }
     }
 
     val testInput1 = readInput("Day19_test1")
     check(part1(testInput1) == 19114)
+    check(part2(testInput1) == 167409079868000L)
 
     val input = readInput("Day19")
     timed("Part1 answer") { part1(input) }
-    // timed("Part2 answer") { part2(input) }
+    timed("Part2 answer") { part2(input) }
 }
 
 private val WORKFLOW_REGEX = """(.+)\{(.+)}""".toRegex()
@@ -130,6 +186,14 @@ private sealed class Rule(val outcome: Outcome) {
                 else -> error("ERR!")
             }
         }
+
+        operator fun not(): Conditional {
+            return when (sign) {
+                '>' -> Conditional(char, '<', number + 1, outcome)
+                '<' -> Conditional(char, '>', number - 1, outcome)
+                else -> error("ERR!")
+            }
+        }
     }
 }
 
@@ -138,3 +202,38 @@ private sealed class Outcome {
     data object Accept : Outcome()
     data object Reject : Outcome()
 }
+
+private data class State(
+    val outcome: Outcome,
+    val ranges: PartRanges,
+)
+
+private data class PartRanges(
+    val x: IntRange,
+    val m: IntRange,
+    val a: IntRange,
+    val s: IntRange,
+)
+
+private fun apply(rule: Rule.Conditional, range: IntRange): IntRange {
+    return when (rule.sign) {
+        '>' -> {
+            maxOf(range.first, rule.number + 1)..range.last
+        }
+        '<' -> {
+            range.first..minOf(range.last, rule.number - 1)
+        }
+        else -> error("ERR!")
+    }
+}
+
+private fun applyRanges(rule: Rule.Conditional, ranges: PartRanges): PartRanges {
+    return PartRanges(
+        x = if (rule.char == 'x') apply(rule, ranges.x) else ranges.x,
+        m = if (rule.char == 'm') apply(rule, ranges.m) else ranges.m,
+        a = if (rule.char == 'a') apply(rule, ranges.a) else ranges.a,
+        s = if (rule.char == 's') apply(rule, ranges.s) else ranges.s,
+    )
+}
+
+private fun IntRange.length() = last - first + 1

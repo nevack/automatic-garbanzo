@@ -10,12 +10,17 @@ fun main() {
         return input.size
     }
 
-    val testInput1 = readInput("{day}_test1")
-    check(part1(testInput1) == 0)
+    fun part2(input: List<String>): Int {
+        return input.size
+    }
+
+    val testInput = readInput("{day}_test1")
+    check(part1(testInput) == 0)
+    check(part2(testInput) == 0)
 
     val input = readInput("{day}")
     timed("Part1 answer") { part1(input) }
-    // timed("Part2 answer") { part2(input) }
+    timed("Part2 answer") { part2(input) }
 }
 """.trimStart()
 
@@ -40,9 +45,12 @@ fun main(args: Array<String>) {
     val filename = "Day%02d".format(genDay)
     println("Generating for $filename")
 
-    PREFIX.resolve("$filename.kt").writeText(
+    val ktFile = PREFIX.resolve("$filename.kt")
+    ktFile.writeText(
         KT_TEMPLATE.replace("{day}", filename)
     )
+    println("File created ${ktFile.toUri()}")
+
     PREFIX.resolve("$filename.txt").createFile()
     for (testCase in 1..testCaseCount) {
         PREFIX.resolve("${filename}_test${testCase}.txt").createFile()
